@@ -30,10 +30,8 @@ def dis_init(spi, reset=None, dc=None, cs=None, backlight=None):
         cs.on()
 
 
-def lcd_config(spi, width=240, height=240, reset=None, dc=None,
-        cs=None, backlight=None, rotation=0):
+def lcd_config(spi, width=240, height=240, reset=None, dc=None, rotation=0):
     display = st7789.ST7789(spi, width, height, reset=reset, dc=dc,
                             rotation=rotation)
     dis_init(spi, reset=reset, dc=dc)
     return display
-
