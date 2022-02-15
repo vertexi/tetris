@@ -1,6 +1,7 @@
 import graphic
 import utime
 from tetromino import get_tetromino_area, Tetromino, tetrominos
+import joystick
 
 
 class Game:
@@ -102,6 +103,12 @@ class Game:
         self.init_game()
         graphic.diff_draw(self.game_map)
         graphic.draw_tetromino(self.tetromino, clear_pre=False)
+
+        counter = 0
         while not self.game_over:
-            utime.sleep_ms(200)
-            self.move_down()
+            utime.sleep_ms(1)
+            counter += 1
+            if counter == 100:
+                counter = 0
+                self.move_down()
+
