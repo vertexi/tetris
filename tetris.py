@@ -17,6 +17,7 @@ class Game:
         self.bottom_wall_width = 2
         self.game_map = None
         self.tetromino = None
+        self.drop_start_time = 0
 
         self.update_map_data = self.iter_tetromino_area(self.update_map_action)
         self.collide_detect = \
@@ -106,8 +107,10 @@ class Game:
             self.tetromino.orient = pre_orient
 
     def drop(self, pin):
-        while self.move_down():
-            graphic.diff_draw(self.get_full_map())
+        if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) > 100:
+            while self.move_down():
+                graphic.diff_draw(self.get_full_map())
+            self.drop_start_time = utime.ticks_ms()
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
