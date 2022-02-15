@@ -14,7 +14,7 @@ class Game:
         self.game_map = None
         self.tetromino = None
 
-        self.update_map = self.iter_tetromino_area(self.update_map_action)
+        self.update_map_data = self.iter_tetromino_area(self.update_map_action)
         self.collide_detect = \
             self.iter_tetromino_area(self.collide_detect_action)
 
@@ -52,6 +52,10 @@ class Game:
                 tetromino_array[tetromino_y][tetromino_x]) > 1:
             return True
 
+    def update_map(self):
+        self.update_map_data()
+        graphic.diff_draw(self.game_map)
+
     def move_down(self):
         self.tetromino.pos_y_pre = self.tetromino.pos_y
         self.tetromino.pos_y += 1
@@ -59,8 +63,6 @@ class Game:
             self.tetromino.pos_y -= 1
             self.update_map()
             self.add_tetromino()
-            graphic.draw_tetromino(self.tetromino, False)
-            graphic.diff_draw(self.game_map)
         graphic.draw_tetromino(self.tetromino)
 
     def move_right(self):
@@ -79,6 +81,7 @@ class Game:
         self.tetromino = Tetromino(self.cols)
         if self.collide_detect():
             self.game_over = True
+        graphic.draw_tetromino(self.tetromino, clear_pre=False)
 
     def init_map(self):
         self.game_map = \
