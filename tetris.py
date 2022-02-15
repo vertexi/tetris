@@ -18,6 +18,7 @@ class Game:
         self.game_map = None
         self.tetromino = None
         self.drop_start_time = utime.ticks_ms()
+        self.rotate_start_time = utime.ticks_ms()
 
         self.update_map_data = self.iter_tetromino_area(self.update_map_action)
         self.collide_detect = \
@@ -97,12 +98,14 @@ class Game:
             self.tetromino.pos_x += 1
 
     def rotate(self, pin):
-        pre_orient = self.tetromino.orient
-        if pre_orient == self.tetromino.type_variants - 1:
-            self.tetromino.orient = -1
-        self.tetromino.orient += 1
-        if self.collide_detect():
-            self.tetromino.orient = pre_orient
+        if utime.ticks_diff(utime.ticks_ms(), self.rotate_start_time) > 100:
+            pre_orient = self.tetromino.orient
+            if pre_orient == self.tetromino.type_variants - 1:
+                self.tetromino.orient = -1
+            self.tetromino.orient += 1
+            if self.collide_detect():
+                self.tetromino.orient = pre_orient
+            self.rotate_start_time = utime.ticks_ms()
 
     def drop(self, pin):
         if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) > 100:
