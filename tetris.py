@@ -1,8 +1,7 @@
 import machine
-
 import graphic
 import utime
-from tetromino import get_tetromino_area, Tetromino, tetrominos
+from tetromino import Tetromino, tetrominos
 import joystick
 from machine import Pin
 
@@ -20,9 +19,9 @@ class Game:
         self.drop_start_time = utime.ticks_ms()
         self.rotate_start_time = utime.ticks_ms()
 
-        self.update_map_data = self.iter_tetromino_area(self.update_map_action)
-        self.collide_detect = \
-            self.iter_tetromino_area(self.collide_detect_action)
+        self.update_map = self.iter_tetromino_area(self.update_map)
+        self.collide_detect = self.iter_tetromino_area(self.collide_detect)
+        self.get_full_map = self.iter_tetromino_area(self.get_full_map)
 
         self.game_over = False
 
@@ -30,7 +29,7 @@ class Game:
 
     def iter_tetromino_area(self, action):
 
-        def func():
+        def func(game_map):
             x = self.tetromino.length
             k = x
             pos_x = self.tetromino.pos_x
@@ -43,45 +42,31 @@ class Game:
                 x -= 1
             for i in range(x):
                 for j in range(k):
-                    if action(tetromino_array, pos_y-j, pos_x+i, -j-1, i):
+                    if action(tetromino_array, pos_y-j, pos_x+i, -j-1, i, game_map):
                         return True
 
         return func
 
-    def update_map_action(self, tetromino_array, j, i, tetromino_y,
-                          tetromino_x):
-        self.game_map[j][i] += \
+    def update_map(self, tetromino_array, j, i, tetromino_y,
+                   tetromino_x, game_map):
+        game_map[j][i] += \
             tetromino_array[tetromino_y][tetromino_x]
 
-    def collide_detect_action(self, tetromino_array, j, i, tetromino_y,
-                              tetromino_x):
-        if (self.game_map[j][i]+tetromino_array[tetromino_y][tetromino_x]) > 1:
+    def collide_detect(self, tetromino_array, j, i, tetromino_y,
+                       tetromino_x, game_map):
+        if (game_map[j][i]+tetromino_array[tetromino_y][tetromino_x]) > 1:
             return True
 
-    def update_map(self):
-        self.update_map_data()
-
-    def get_full_map(self):
-        full_map = [i.copy() for i in self.game_map]
-        x = self.tetromino.length
-        k = x
-        pos_x = self.tetromino.pos_x
-        pos_y = self.tetromino.pos_y
-        tetromino_array = \
-            tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
-        if x > pos_y + 1:
-            k = pos_y + 1
-        for i in range(x):
-            for j in range(k):
-                if tetromino_array[-j - 1][i] == 1:
-                    full_map[pos_y - j][pos_x + i] = 1
-        return full_map
+    def get_full_map(self, tetromino_array, j, i, tetromino_y,
+                     tetromino_x, game_map):
+        if tetromino_array[tetromino_y][tetromino_x] == 1:
+            game_map[j][i] = 1
 
     def move_down(self):
         self.tetromino.pos_y += 1
-        if self.collide_detect():
+        if self.collide_detect(self.game_map):
             self.tetromino.pos_y -= 1
-            self.update_map()
+            self.update_map(self.game_map)
             self.detect_and_remove_line()
             self.add_tetromino()
             return False
@@ -89,12 +74,12 @@ class Game:
 
     def move_right(self):
         self.tetromino.pos_x += 1
-        if self.collide_detect():
+        if self.collide_detect(self.game_map):
             self.tetromino.pos_x -= 1
 
     def move_left(self):
         self.tetromino.pos_x -= 1
-        if self.collide_detect():
+        if self.collide_detect(self.game_map):
             self.tetromino.pos_x += 1
 
     def rotate(self, pin):
@@ -103,14 +88,14 @@ class Game:
             if pre_orient == self.tetromino.type_variants - 1:
                 self.tetromino.orient = -1
             self.tetromino.orient += 1
-            if self.collide_detect():
+            if self.collide_detect(self.game_map):
                 self.tetromino.orient = pre_orient
             self.rotate_start_time = utime.ticks_ms()
 
     def drop(self, pin):
         if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) > 100:
             while self.move_down():
-                graphic.diff_draw(self.get_full_map())
+                self.fresh_lcd()
             self.drop_start_time = utime.ticks_ms()
 
     def detect_and_remove_line(self):
@@ -130,7 +115,7 @@ class Game:
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
-        if self.collide_detect():
+        if self.collide_detect(self.game_map):
             self.game_over = True
 
     def init_map(self):
@@ -151,6 +136,12 @@ class Game:
 
     def reset(self, pin):
         machine.reset()
+
+    def fresh_lcd(self):
+        full_map = [i.copy() for i in self.game_map]
+        self.get_full_map(full_map)
+        graphic.diff_draw(full_map)
+        del full_map
 
     def run(self):
         self.init_game()
@@ -178,4 +169,4 @@ class Game:
                     right_counter = 0
                     self.move_right()
                 right_counter += 1
-            graphic.diff_draw(self.get_full_map())
+            self.fresh_lcd()

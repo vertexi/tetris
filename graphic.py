@@ -4,8 +4,8 @@ import st7789
 tetromino_width = 0
 prev_map: list[list] = None
 display: st7789.ST7789 = None
-game_rows:int = 0
-game_cols:int = 0
+game_rows: int = 0
+game_cols: int = 0
 
 
 def init_graphic(display_: st7789.ST7789, game_rows_, game_cols_):

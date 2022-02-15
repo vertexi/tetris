@@ -78,16 +78,6 @@ tetrominos = [tetromino_I, tetromino_L, tetromino_J, tetromino_S,
               tetromino_Z, tetromino_T, tetromino_O]
 
 
-def get_tetromino_area(pos_x: int, pos_y: int, tetromino_len: int) -> list:
-    window_x0 = pos_x
-    window_y0 = pos_y
-    window_x1 = window_x0 + tetromino_len
-    window_y1 = window_y0 - tetromino_len
-    if window_y1 < 0:
-        window_y1 = -1
-    return [window_x0, window_x1, window_y0, window_y1]
-
-
 class Tetromino:
     def __init__(self, map_cols: int):
         self.tetromino_type = random.randint(0, len(tetrominos) - 1)
