@@ -1,7 +1,10 @@
+import machine
+
 import graphic
 import utime
 from tetromino import get_tetromino_area, Tetromino, tetrominos
 import joystick
+from machine import Pin
 
 
 class Game:
@@ -81,6 +84,8 @@ class Game:
             self.tetromino.pos_y -= 1
             self.update_map()
             self.add_tetromino()
+            return False
+        return True
 
     def move_right(self):
         self.tetromino.pos_x += 1
@@ -92,13 +97,17 @@ class Game:
         if self.collide_detect():
             self.tetromino.pos_x += 1
 
-    def rotate(self):
+    def rotate(self, pin):
         pre_orient = self.tetromino.orient
         if pre_orient == self.tetromino.type_variants - 1:
             self.tetromino.orient = -1
         self.tetromino.orient += 1
         if self.collide_detect():
             self.tetromino.orient = pre_orient
+
+    def drop(self, pin):
+        while self.move_down():
+            graphic.diff_draw(self.get_full_map())
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
@@ -121,8 +130,14 @@ class Game:
         self.game_map = self.init_map()
         self.add_tetromino()
 
+    def reset(self, pin):
+        machine.reset()
+
     def run(self):
         self.init_game()
+        joystick.buttonB.irq(self.rotate, Pin.IRQ_FALLING)
+        joystick.buttonA.irq(self.drop, Pin.IRQ_FALLING)
+        joystick.buttonStart.irq(self.reset, Pin.IRQ_FALLING)
 
         counter = 0
         left_counter = 0
@@ -146,9 +161,4 @@ class Game:
                     right_counter = 0
                     self.move_right()
                 right_counter += 1
-            if button_b == 0:
-                if rotate_counter % 30 == 0:
-                    rotate_counter = 0
-                    self.rotate()
-                rotate_counter += 1
             graphic.diff_draw(self.get_full_map())
