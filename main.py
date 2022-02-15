@@ -6,6 +6,7 @@ from tetris import Game
 
 
 # initialize
+machine.freq(240000000)
 gc.collect()
 
 # init lcd

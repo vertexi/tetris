@@ -91,10 +91,8 @@ def get_tetromino_area(pos_x: int, pos_y: int, tetromino_len: int) -> list:
 class Tetromino:
     def __init__(self, map_cols: int):
         self.tetromino_type = random.randint(0, len(tetrominos) - 1)
+        self.type_variants = len(tetrominos[self.tetromino_type])
         self.orient = 0
-        self.orient_pre = 0
         self.length = len(tetrominos[self.tetromino_type][self.orient])
         self.pos_x = random.randint(1, map_cols - self.length - 1)
         self.pos_y = 1
-        self.pos_x_pre = self.pos_x
-        self.pos_y_pre = self.pos_y

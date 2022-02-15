@@ -1,6 +1,5 @@
 import math
 import st7789
-from tetromino import get_tetromino_area, Tetromino, tetrominos
 
 tetromino_width = 0
 prev_map: list[list] = None
@@ -50,37 +49,6 @@ def diff_draw(game_map: list[list]):
                     draw_block(j, i, st7789.BLACK)
                 elif diff == -1:
                     draw_block(j, i, st7789.WHITE)
-
-
-def draw_tetromino(tetromino: Tetromino, clear_pre=True):
-    if clear_pre:
-        tetromino_array = tetrominos[tetromino.tetromino_type][tetromino.orient_pre]
-        window_x0, window_x1, window_y0, window_y1 = \
-            get_tetromino_area(tetromino.pos_x_pre,
-                               tetromino.pos_y_pre,
-                               tetromino.length)
-        tetromino_x = 0
-        for i in range(window_x0, window_x1):
-            tetromino_y = tetromino.length - 1
-            for j in range(window_y0, window_y1, -1):
-                if tetromino_array[tetromino_y][tetromino_x] == 1:
-                    draw_block(i, j, st7789.BLACK)
-                tetromino_y -= 1
-            tetromino_x += 1
-
-    tetromino_array = tetrominos[tetromino.tetromino_type][tetromino.orient]
-    window_x0, window_x1, window_y0, window_y1 = \
-        get_tetromino_area(tetromino.pos_x,
-                           tetromino.pos_y,
-                           tetromino.length)
-    tetromino_x = 0
-    for i in range(window_x0, window_x1):
-        tetromino_y = tetromino.length - 1
-        for j in range(window_y0, window_y1, -1):
-            if tetromino_array[tetromino_y][tetromino_x] == 1:
-                draw_block(i, j, st7789.WHITE)
-            tetromino_y -= 1
-        tetromino_x += 1
 
 
 def draw_block(x: int, y: int, color: int):

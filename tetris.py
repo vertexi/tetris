@@ -27,7 +27,8 @@ class Game:
 
         def func():
             tetromino_array = \
-                tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
+                tetrominos[self.tetromino.tetromino_type][
+                    self.tetromino.orient]
             window_x0, window_x1, window_y0, window_y1 = \
                 get_tetromino_area(self.tetromino.pos_x,
                                    self.tetromino.pos_y,
@@ -44,13 +45,15 @@ class Game:
 
         return func
 
-    def update_map_action(self, tetromino_array, j, i, tetromino_y, tetromino_x):
+    def update_map_action(self, tetromino_array, j, i, tetromino_y,
+                          tetromino_x):
         self.game_map[j][i] += \
             tetromino_array[tetromino_y][tetromino_x]
 
-    def collide_detect_action(self, tetromino_array, j, i, tetromino_y, tetromino_x):
+    def collide_detect_action(self, tetromino_array, j, i, tetromino_y,
+                              tetromino_x):
         if (self.game_map[j][i] +
-                tetromino_array[tetromino_y][tetromino_x]) > 1:
+            tetromino_array[tetromino_y][tetromino_x]) > 1:
             return True
 
     def update_map(self):
@@ -64,11 +67,11 @@ class Game:
         pos_y = self.tetromino.pos_y
         tetromino_array = \
             tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
-        if x > pos_y+1:
-            k = pos_y+1
+        if x > pos_y + 1:
+            k = pos_y + 1
         for i in range(x):
             for j in range(k):
-                if tetromino_array[-j-1][i] == 1:
+                if tetromino_array[-j - 1][i] == 1:
                     full_map[pos_y - j][pos_x + i] = 1
         return full_map
 
@@ -88,6 +91,14 @@ class Game:
         self.tetromino.pos_x -= 1
         if self.collide_detect():
             self.tetromino.pos_x += 1
+
+    def rotate(self):
+        pre_orient = self.tetromino.orient
+        if pre_orient == self.tetromino.type_variants - 1:
+            self.tetromino.orient = -1
+        self.tetromino.orient += 1
+        if self.collide_detect():
+            self.tetromino.orient = pre_orient
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
@@ -114,15 +125,30 @@ class Game:
         self.init_game()
 
         counter = 0
+        left_counter = 0
+        right_counter = 0
+        rotate_counter = 0
         while not self.game_over:
             utime.sleep_ms(1)
             counter += 1
-            if counter == 10:
+            if counter == 100:
                 counter = 0
                 self.move_down()
             stick_x = joystick.x_value()
+            button_b = joystick.button_b()
             if stick_x < 0xFFF:
-                self.move_left()
-            elif stick_x > 0xEFF:
-                self.move_right()
+                if left_counter % 30 == 0:
+                    left_counter = 0
+                    self.move_left()
+                left_counter += 1
+            elif stick_x > 0xEFFF:
+                if right_counter % 30 == 0:
+                    right_counter = 0
+                    self.move_right()
+                right_counter += 1
+            if button_b == 0:
+                if rotate_counter % 30 == 0:
+                    rotate_counter = 0
+                    self.rotate()
+                rotate_counter += 1
             graphic.diff_draw(self.get_full_map())
