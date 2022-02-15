@@ -30,22 +30,20 @@ class Game:
     def iter_tetromino_area(self, action):
 
         def func():
+            x = self.tetromino.length
+            k = x
+            pos_x = self.tetromino.pos_x
+            pos_y = self.tetromino.pos_y
             tetromino_array = \
-                tetrominos[self.tetromino.tetromino_type][
-                    self.tetromino.orient]
-            window_x0, window_x1, window_y0, window_y1 = \
-                get_tetromino_area(self.tetromino.pos_x,
-                                   self.tetromino.pos_y,
-                                   self.tetromino.length)
-            tetromino_x = 0
-            for i in range(window_x0, window_x1):
-                tetromino_y = self.tetromino.length - 1
-                for j in range(window_y0, window_y1, -1):
-                    if action(tetromino_array, j, i, tetromino_y, tetromino_x):
+                tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
+            if x > pos_y + 1:
+                k = pos_y + 1
+            if x + pos_x > self.cols:
+                x -= 1
+            for i in range(x):
+                for j in range(k):
+                    if action(tetromino_array, pos_y-j, pos_x+i, -j-1, i):
                         return True
-                    tetromino_y -= 1
-                tetromino_x += 1
-            return False
 
         return func
 

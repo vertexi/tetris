@@ -93,6 +93,6 @@ class Tetromino:
         self.tetromino_type = random.randint(0, len(tetrominos) - 1)
         self.type_variants = len(tetrominos[self.tetromino_type])
         self.orient = 0
-        self.length = len(tetrominos[self.tetromino_type][self.orient])
+        self.length = len(tetrominos[self.tetromino_type][0])
         self.pos_x = random.randint(1, map_cols - self.length - 1)
         self.pos_y = 1
