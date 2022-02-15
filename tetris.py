@@ -17,7 +17,7 @@ class Game:
         self.bottom_wall_width = 2
         self.game_map = None
         self.tetromino = None
-        self.drop_start_time = 0
+        self.drop_start_time = utime.ticks_ms()
 
         self.update_map_data = self.iter_tetromino_area(self.update_map_action)
         self.collide_detect = \
@@ -56,8 +56,7 @@ class Game:
 
     def collide_detect_action(self, tetromino_array, j, i, tetromino_y,
                               tetromino_x):
-        if (self.game_map[j][i] +
-            tetromino_array[tetromino_y][tetromino_x]) > 1:
+        if (self.game_map[j][i]+tetromino_array[tetromino_y][tetromino_x]) > 1:
             return True
 
     def update_map(self):
@@ -84,6 +83,7 @@ class Game:
         if self.collide_detect():
             self.tetromino.pos_y -= 1
             self.update_map()
+            self.detect_and_remove_line()
             self.add_tetromino()
             return False
         return True
@@ -111,6 +111,21 @@ class Game:
             while self.move_down():
                 graphic.diff_draw(self.get_full_map())
             self.drop_start_time = utime.ticks_ms()
+
+    def detect_and_remove_line(self):
+        for i in range(self.rows-2):
+            line_sum = 0
+            for j in range(1, self.cols-1):
+                line_sum += self.game_map[i][j]
+            if line_sum == self.cols-2:
+                self.remove_line(i)
+
+    def remove_line(self, row_num: int):
+        for i in range(row_num, 0, -1):
+            for j in range(1, self.cols - 1):
+                self.game_map[i][j] = self.game_map[i-1][j]
+        for j in range(1, self.cols - 1):
+            self.game_map[0][j] = 0
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
@@ -145,7 +160,6 @@ class Game:
         counter = 0
         left_counter = 0
         right_counter = 0
-        rotate_counter = 0
         while not self.game_over:
             utime.sleep_ms(1)
             counter += 1
@@ -153,7 +167,6 @@ class Game:
                 counter = 0
                 self.move_down()
             stick_x = joystick.x_value()
-            button_b = joystick.button_b()
             if stick_x < 0xFFF:
                 if left_counter % 30 == 0:
                     left_counter = 0
