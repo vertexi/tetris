@@ -55,25 +55,36 @@ class Game:
 
     def update_map(self):
         self.update_map_data()
-        graphic.diff_draw(self.game_map)
+
+    def get_full_map(self):
+        full_map = [i.copy() for i in self.game_map]
+        x = self.tetromino.length
+        k = x
+        pos_x = self.tetromino.pos_x
+        pos_y = self.tetromino.pos_y
+        tetromino_array = \
+            tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
+        if x > pos_y+1:
+            k = pos_y+1
+        for i in range(x):
+            for j in range(k):
+                if tetromino_array[-j-1][i] == 1:
+                    full_map[pos_y - j][pos_x + i] = 1
+        return full_map
 
     def move_down(self):
-        self.tetromino.pos_y_pre = self.tetromino.pos_y
         self.tetromino.pos_y += 1
         if self.collide_detect():
             self.tetromino.pos_y -= 1
             self.update_map()
             self.add_tetromino()
-        graphic.draw_tetromino(self.tetromino)
 
     def move_right(self):
-        self.tetromino.pos_x_pre = self.tetromino.pos_x
         self.tetromino.pos_x += 1
         if self.collide_detect():
             self.tetromino.pos_x -= 1
 
     def move_left(self):
-        self.tetromino.pos_x_pre = self.tetromino.pos_x
         self.tetromino.pos_x -= 1
         if self.collide_detect():
             self.tetromino.pos_x += 1
@@ -82,33 +93,36 @@ class Game:
         self.tetromino = Tetromino(self.cols)
         if self.collide_detect():
             self.game_over = True
-        graphic.draw_tetromino(self.tetromino, clear_pre=False)
 
     def init_map(self):
-        self.game_map = \
+        game_map = \
             [[0 for col in range(self.cols)] for row in range(self.rows)]
         # draw wall
         for i in range(self.rows):
-            self.game_map[i][0] = 1
-            self.game_map[i][-1] = 1
+            game_map[i][0] = 1
+            game_map[i][-1] = 1
         for j in range(self.cols):
-            self.game_map[-2][j] = 1
-            self.game_map[-1][j] = 1
+            game_map[-2][j] = 1
+            game_map[-1][j] = 1
+        return game_map
 
     def init_game(self):
-        self.init_map()
+        self.game_map = self.init_map()
         self.add_tetromino()
 
     def run(self):
         self.init_game()
-        graphic.diff_draw(self.game_map)
-        graphic.draw_tetromino(self.tetromino, clear_pre=False)
 
         counter = 0
         while not self.game_over:
             utime.sleep_ms(1)
             counter += 1
-            if counter == 100:
+            if counter == 10:
                 counter = 0
                 self.move_down()
-
+            stick_x = joystick.x_value()
+            if stick_x < 0xFFF:
+                self.move_left()
+            elif stick_x > 0xEFF:
+                self.move_right()
+            graphic.diff_draw(self.get_full_map())

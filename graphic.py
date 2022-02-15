@@ -45,11 +45,11 @@ def diff_draw(game_map: list[list]):
             if diff == 0:
                 pass
             else:
+                prev_map[i][j] = game_map[i][j]
                 if diff == 1:
                     draw_block(j, i, st7789.BLACK)
                 elif diff == -1:
                     draw_block(j, i, st7789.WHITE)
-    prev_map = copy_map(game_map)
 
 
 def draw_tetromino(tetromino: Tetromino, clear_pre=True):
