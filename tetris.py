@@ -1,87 +1,16 @@
-import random
-import pprint
-
-tetromino_I_1 = [[0, 0, 0, 0],
-                 [0, 0, 0, 0],
-                 [1, 1, 1, 1],
-                 [0, 0, 0, 0]]
-tetromino_I_2 = [[0, 1, 0, 0],
-                 [0, 1, 0, 0],
-                 [0, 1, 0, 0],
-                 [0, 1, 0, 0]]
-
-tetromino_L_1 = [[0, 0, 0],
-                 [1, 1, 1],
-                 [1, 0, 0]]
-tetromino_L_2 = [[1, 1, 0],
-                 [0, 1, 0],
-                 [0, 1, 0]]
-tetromino_L_3 = [[0, 0, 1],
-                 [1, 1, 1],
-                 [0, 0, 0]]
-tetromino_L_4 = [[0, 1, 0],
-                 [0, 1, 0],
-                 [0, 1, 1]]
-
-tetromino_J_1 = [[0, 0, 0],
-                 [1, 1, 1],
-                 [0, 0, 1]]
-tetromino_J_2 = [[0, 1, 0],
-                 [0, 1, 0],
-                 [1, 1, 0]]
-tetromino_J_3 = [[1, 0, 0],
-                 [1, 1, 1],
-                 [0, 0, 0]]
-tetromino_J_4 = [[0, 1, 1],
-                 [0, 1, 0],
-                 [0, 1, 0]]
-
-tetromino_S_1 = [[0, 0, 0],
-                 [0, 1, 1],
-                 [1, 1, 0]]
-tetromino_S_2 = [[1, 0, 0],
-                 [1, 1, 0],
-                 [0, 1, 0]]
-
-tetromino_Z_1 = [[0, 0, 0],
-                 [1, 1, 0],
-                 [0, 1, 1]]
-tetromino_Z_2 = [[0, 1, 0],
-                 [1, 1, 0],
-                 [1, 0, 0]]
-
-tetromino_T_1 = [[0, 0, 0],
-                 [1, 1, 1],
-                 [0, 1, 0]]
-tetromino_T_2 = [[0, 1, 0],
-                 [1, 1, 0],
-                 [0, 1, 0]]
-tetromino_T_3 = [[0, 1, 0],
-                 [1, 1, 1],
-                 [0, 0, 0]]
-tetromino_T_4 = [[0, 1, 0],
-                 [0, 1, 1],
-                 [0, 1, 0]]
-
-tetromino_O = [[1, 1],
-               [1, 1]]
-
-tetromino_I = [tetromino_I_1, tetromino_I_2]
-tetromino_L = [tetromino_L_1, tetromino_L_2, tetromino_L_3, tetromino_L_4]
-tetromino_J = [tetromino_J_1, tetromino_J_2, tetromino_J_3, tetromino_J_4]
-tetromino_S = [tetromino_S_1, tetromino_S_2]
-tetromino_Z = [tetromino_Z_1, tetromino_Z_2]
-tetromino_T = [tetromino_T_1, tetromino_T_2, tetromino_T_3, tetromino_T_4]
-tetromino_O = [tetromino_O]
-
-tetrominos = [tetromino_I, tetromino_L, tetromino_J, tetromino_S,
-              tetromino_Z, tetromino_T, tetromino_O]
+import graphic
+import utime
+from tetromino import get_tetromino_area, Tetromino, tetrominos
 
 
-class GameMap:
-    def __init__(self):
+class Game:
+    tetromino: Tetromino
+
+    def __init__(self, display):
         self.rows = 22
         self.cols = 12
+        self.wall_width = 1
+        self.bottom_wall_width = 2
         self.game_map = None
         self.tetromino = None
 
@@ -91,25 +20,22 @@ class GameMap:
 
         self.game_over = False
 
-    def get_tetromino_area(self):
-        window_x0 = self.tetromino.pos_x
-        window_y0 = self.tetromino.pos_y
-        tetromino_len = self.tetromino.length
-        window_x1 = window_x0 + tetromino_len
-        window_y1 = window_y0 - tetromino_len
-        if window_y1 < 0:
-            window_y1 = -1
-        return window_x0, window_x1, window_y0, window_y1
+        graphic.init_graphic(display, self.rows, self.cols)
 
     def iter_tetromino_area(self, action):
+
         def func():
-            window_x0, window_x1, window_y0, window_y1 = self.get_tetromino_area()
-            print(window_x0, window_x1, window_y0, window_y1)
+            tetromino_array = \
+                tetrominos[self.tetromino.tetromino_type][self.tetromino.orient]
+            window_x0, window_x1, window_y0, window_y1 = \
+                get_tetromino_area(self.tetromino.pos_x,
+                                   self.tetromino.pos_y,
+                                   self.tetromino.length)
             tetromino_x = 0
             for i in range(window_x0, window_x1):
                 tetromino_y = self.tetromino.length - 1
                 for j in range(window_y0, window_y1, -1):
-                    if action(j, i, tetromino_y, tetromino_x):
+                    if action(tetromino_array, j, i, tetromino_y, tetromino_x):
                         return True
                     tetromino_y -= 1
                 tetromino_x += 1
@@ -117,29 +43,34 @@ class GameMap:
 
         return func
 
-    def update_map_action(self, j, i, tetromino_y, tetromino_x):
+    def update_map_action(self, tetromino_array, j, i, tetromino_y, tetromino_x):
         self.game_map[j][i] += \
-            self.tetromino.tetromino[tetromino_y][tetromino_x]
+            tetromino_array[tetromino_y][tetromino_x]
 
-    def collide_detect_action(self, j, i, tetromino_y, tetromino_x):
+    def collide_detect_action(self, tetromino_array, j, i, tetromino_y, tetromino_x):
         if (self.game_map[j][i] +
-                self.tetromino.tetromino[tetromino_y][tetromino_x]) > 1:
+                tetromino_array[tetromino_y][tetromino_x]) > 1:
             return True
 
     def move_down(self):
+        self.tetromino.pos_y_pre = self.tetromino.pos_y
         self.tetromino.pos_y += 1
         if self.collide_detect():
             self.tetromino.pos_y -= 1
             self.update_map()
             self.add_tetromino()
-            self.print_game()
+            graphic.draw_tetromino(self.tetromino, False)
+            graphic.diff_draw(self.game_map)
+        graphic.draw_tetromino(self.tetromino)
 
     def move_right(self):
+        self.tetromino.pos_x_pre = self.tetromino.pos_x
         self.tetromino.pos_x += 1
         if self.collide_detect():
             self.tetromino.pos_x -= 1
 
     def move_left(self):
+        self.tetromino.pos_x_pre = self.tetromino.pos_x
         self.tetromino.pos_x -= 1
         if self.collide_detect():
             self.tetromino.pos_x += 1
@@ -166,26 +97,8 @@ class GameMap:
 
     def run(self):
         self.init_game()
+        graphic.diff_draw(self.game_map)
+        graphic.draw_tetromino(self.tetromino, clear_pre=False)
         while not self.game_over:
+            utime.sleep_ms(200)
             self.move_down()
-
-    def print_game(self):
-        pprint.pprint(self.game_map)
-
-
-class Tetromino:
-    def __init__(self, map_cols: int):
-        self.tetromino_type = random.randint(0, len(tetrominos) - 1)
-        self.orient = 0
-        self.tetromino = tetrominos[self.tetromino_type][self.orient]
-        self.length = len(self.tetromino)
-        self.pos_x = random.randint(1, map_cols - self.length - 1)
-        self.pos_y = 1
-
-    def rotate(self):
-        self.orient += 1
-        self.tetromino = tetrominos[self.tetromino_type][self.orient]
-
-
-game = GameMap()
-game.run()
