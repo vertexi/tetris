@@ -3,6 +3,7 @@ import machine
 from machine import Pin
 from libs import lcd
 from tetris import Game
+import control
 
 
 # initialize
@@ -22,4 +23,10 @@ display = lcd.lcd_config(spi_lcd, width=lcd_width, height=lcd_height,
                          reset=lcd_reset, dc=lcd_dc, rotation=0)
 
 game = Game(display)
+joystick_controller = \
+        control.Joystick([control.x_value, False, 0xFFF, 30, game.move_left],
+                         [control.x_value, True,  0xEFFF, 30, game.move_right],
+                         [control.y_value, False,  0xFFF, 30, game.rotate])
+game.set_joystick(joystick_controller)
+
 game.run()

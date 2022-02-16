@@ -1,6 +1,5 @@
 import time
 import st7789
-import machine
 
 
 def dis_init(spi, reset=None, dc=None, cs=None, backlight=None):

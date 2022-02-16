@@ -2,12 +2,13 @@ import machine
 import graphic
 import utime
 from tetromino import Tetromino, tetrominos
-import joystick
+import control
 from machine import Pin
 
 
 class Game:
     tetromino: Tetromino
+    joystick: control.Joystick
 
     def __init__(self, display):
         self.rows = 22
@@ -18,6 +19,7 @@ class Game:
         self.tetromino = None
         self.drop_start_time = utime.ticks_ms()
         self.rotate_start_time = utime.ticks_ms()
+        self.button_space_time = 150
 
         self.update_map = self.iter_tetromino_area(self.update_map)
         self.collide_detect = self.iter_tetromino_area(self.collide_detect)
@@ -26,6 +28,7 @@ class Game:
         self.game_over = False
 
         graphic.init_graphic(display, self.rows, self.cols)
+
 
     def iter_tetromino_area(self, action):
 
@@ -82,8 +85,9 @@ class Game:
         if self.collide_detect(self.game_map):
             self.tetromino.pos_x += 1
 
-    def rotate(self, pin):
-        if utime.ticks_diff(utime.ticks_ms(), self.rotate_start_time) > 100:
+    def rotate(self, pin=None):
+        if utime.ticks_diff(utime.ticks_ms(), self.rotate_start_time) \
+                > self.button_space_time:
             pre_orient = self.tetromino.orient
             if pre_orient == self.tetromino.type_variants - 1:
                 self.tetromino.orient = -1
@@ -93,7 +97,8 @@ class Game:
             self.rotate_start_time = utime.ticks_ms()
 
     def drop(self, pin):
-        if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) > 100:
+        if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) \
+                > self.button_space_time:
             while self.move_down():
                 self.fresh_lcd()
             self.drop_start_time = utime.ticks_ms()
@@ -135,7 +140,7 @@ class Game:
         self.add_tetromino()
 
     def reset(self, pin):
-        machine.reset()
+        machine.soft_reset()
 
     def fresh_lcd(self):
         full_map = [i.copy() for i in self.game_map]
@@ -143,30 +148,21 @@ class Game:
         graphic.diff_draw(full_map)
         del full_map
 
+    def set_joystick(self, joystick):
+        self.joystick = joystick
+
     def run(self):
         self.init_game()
-        joystick.buttonB.irq(self.rotate, Pin.IRQ_FALLING)
-        joystick.buttonA.irq(self.drop, Pin.IRQ_FALLING)
-        joystick.buttonStart.irq(self.reset, Pin.IRQ_FALLING)
+        control.buttonB.irq(self.rotate, Pin.IRQ_FALLING)
+        control.buttonA.irq(self.drop, Pin.IRQ_FALLING)
+        control.buttonStart.irq(self.reset, Pin.IRQ_FALLING)
 
         counter = 0
-        left_counter = 0
-        right_counter = 0
         while not self.game_over:
             utime.sleep_ms(1)
-            counter += 1
-            if counter == 100:
+            if counter % 100 == 0:
                 counter = 0
                 self.move_down()
-            stick_x = joystick.x_value()
-            if stick_x < 0xFFF:
-                if left_counter % 30 == 0:
-                    left_counter = 0
-                    self.move_left()
-                left_counter += 1
-            elif stick_x > 0xEFFF:
-                if right_counter % 30 == 0:
-                    right_counter = 0
-                    self.move_right()
-                right_counter += 1
+            counter += 1
+            self.joystick.run()
             self.fresh_lcd()
