@@ -9,6 +9,7 @@ from machine import Pin
 class Game:
     tetromino: Tetromino
     joystick: control.Joystick
+    button: control.Button
 
     def __init__(self, display):
         self.rows = 22
@@ -17,9 +18,6 @@ class Game:
         self.bottom_wall_width = 2
         self.game_map = None
         self.tetromino = None
-        self.drop_start_time = utime.ticks_ms()
-        self.rotate_start_time = utime.ticks_ms()
-        self.button_space_time = 150
 
         self.update_map = self.iter_tetromino_area(self.update_map)
         self.collide_detect = self.iter_tetromino_area(self.collide_detect)
@@ -86,22 +84,16 @@ class Game:
             self.tetromino.pos_x += 1
 
     def rotate(self, pin=None):
-        if utime.ticks_diff(utime.ticks_ms(), self.rotate_start_time) \
-                > self.button_space_time:
-            pre_orient = self.tetromino.orient
-            if pre_orient == self.tetromino.type_variants - 1:
-                self.tetromino.orient = -1
-            self.tetromino.orient += 1
-            if self.collide_detect(self.game_map):
-                self.tetromino.orient = pre_orient
-            self.rotate_start_time = utime.ticks_ms()
+        pre_orient = self.tetromino.orient
+        if pre_orient == self.tetromino.type_variants - 1:
+            self.tetromino.orient = -1
+        self.tetromino.orient += 1
+        if self.collide_detect(self.game_map):
+            self.tetromino.orient = pre_orient
 
-    def drop(self, pin):
-        if utime.ticks_diff(utime.ticks_ms(), self.drop_start_time) \
-                > self.button_space_time:
-            while self.move_down():
-                self.fresh_lcd()
-            self.drop_start_time = utime.ticks_ms()
+    def drop(self, pin=None):
+        while self.move_down():
+            self.fresh_lcd()
 
     def detect_and_remove_line(self):
         for i in range(self.rows-2):
@@ -151,11 +143,11 @@ class Game:
     def set_joystick(self, joystick):
         self.joystick = joystick
 
+    def set_button(self, *args):
+        self.button = control.Button(*args)
+
     def run(self):
         self.init_game()
-        control.buttonB.irq(self.rotate, Pin.IRQ_FALLING)
-        control.buttonA.irq(self.drop, Pin.IRQ_FALLING)
-        control.buttonStart.irq(self.reset, Pin.IRQ_FALLING)
 
         counter = 0
         while not self.game_over:

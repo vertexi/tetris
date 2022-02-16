@@ -1,12 +1,14 @@
 from machine import Pin, ADC
+import utime
 
-xAxis = ADC(Pin(29))
-yAxis = ADC(Pin(28))
 
-buttonB = Pin(5, Pin.IN, Pin.PULL_UP)  # B
-buttonA = Pin(6, Pin.IN, Pin.PULL_UP)  # A
-buttonStart = Pin(7, Pin.IN, Pin.PULL_UP)
-buttonSelect = Pin(8, Pin.IN, Pin.PULL_UP)
+xAxis: ADC
+yAxis: ADC
+
+buttonB: Pin
+buttonA: Pin
+buttonStart: Pin
+buttonSelect: Pin
 
 
 def x_value():
@@ -69,3 +71,23 @@ class Joystick:
     def run(self):
         for control in self.controls:
             control.event()
+
+
+class ButtonEvent:
+    def __init__(self, pin: Pin, trigger_event, time_threshold, callback_handle):
+        self.irq = pin.irq(self.event, trigger_event)
+        self.callback_handle = callback_handle
+        self.start_time = utime.ticks_ms()
+        self.time_threshold = time_threshold
+
+    def event(self, pin):
+        if utime.ticks_diff(utime.ticks_ms(), self.start_time) > self.time_threshold:
+            self.callback_handle()
+            self.start_time = utime.ticks_ms()
+
+
+class Button:
+    def __init__(self, *args):
+        self.buttons = []
+        for arg in args:
+            self.buttons.append(ButtonEvent(*arg))
