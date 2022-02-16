@@ -4,11 +4,29 @@ from tetromino import Tetromino, tetrominos
 import control
 
 
+class Score:
+    def __init__(self):
+        self.score = 0
+        self.rows = 0
+
+    def add_score(self, level, rows):
+        self.rows += rows
+        if rows == 1:
+            self.score += 40 * (level + 1)
+        elif rows == 2:
+            self.score += 100 * (level + 1)
+        elif rows == 3:
+            self.score += 300 * (level + 1)
+        elif rows == 4:
+            self.score += 1200 * (level + 1)
+
+
 class Game:
     game_map: list[list] = None
     tetromino: Tetromino = None
     joystick: control.Joystick
     button: control.Button
+    score: Score
     game_over: bool
     pause: bool
 
@@ -18,6 +36,8 @@ class Game:
         self.wall_width = 1
         self.bottom_wall_width = 2
         self.display = display
+        self.speed = 100
+        self.level = self.speed//100
 
         self.update_map = self.iter_tetromino_area(self.update_map)
         self.collide_detect = self.iter_tetromino_area(self.collide_detect)
@@ -91,12 +111,15 @@ class Game:
             self.fresh_lcd()
 
     def detect_and_remove_line(self):
+        row = 0
         for i in range(self.rows-2):
             line_sum = 0
             for j in range(1, self.cols-1):
                 line_sum += self.game_map[i][j]
             if line_sum == self.cols-2:
                 self.remove_line(i)
+                row += 1
+        self.score.add_score(self.level, row)
 
     def remove_line(self, row_num: int):
         for i in range(row_num, 0, -1):
@@ -128,6 +151,7 @@ class Game:
 
         self.game_over = False
         self.pause = False
+        self.score = Score()
         graphic.init_graphic(self.display, self.rows, self.cols)
 
     def fresh_lcd(self):
@@ -146,7 +170,6 @@ class Game:
         self.init_game()
 
     def pause_game(self):
-        print(self.pause)
         self.pause = not self.pause
 
     def run(self, pin=None):
@@ -154,12 +177,17 @@ class Game:
         while True:
             counter = 0
             while not self.game_over and not self.pause:
+                score_ = self.score.score
 
                 utime.sleep_ms(1)
-                if counter % 100 == 0:
+                if counter % self.speed == 0:
                     counter = 0
                     self.move_down()
                 counter += 1
 
                 self.joystick.run()
                 self.fresh_lcd()
+
+                if score_ != self.score.score:
+                    score_ = self.score.score
+                    graphic.draw_score(score_)
