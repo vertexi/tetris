@@ -172,7 +172,7 @@ class Game:
     def pause_game(self):
         self.pause = not self.pause
 
-    def run(self, pin=None):
+    def run(self):
         self.init_game()
         while True:
             counter = 0

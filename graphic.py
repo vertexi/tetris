@@ -42,7 +42,6 @@ def init_graphic(display_: st7789.ST7789, game_rows_, game_cols_):
     draw_num(0, rows_pos_settings)
 
 
-
 def draw_score_setting(text, text_frac_x, text_frac_y, text_color, num_num, num_color):
     text_x = math.floor(display_height*text_frac_x)
     text_y = math.floor(display_height*text_frac_y)
@@ -54,10 +53,10 @@ def draw_score_setting(text, text_frac_x, text_frac_y, text_color, num_num, num_
     num_clear_width = num_len * num_num
     num_clear_height = scriptc.HEIGHT + 2
     score_pos_setting = {"text_x": text_x, "text_y": text_y, "text_color": text_color,
-                          "text_center": text_center, "num_y":num_y, "num_len":num_len,
-                          "num_clear_x":num_clear_x, "num_clear_y":num_clear_y,
-                          "num_clear_width":num_clear_width, "num_clear_height":num_clear_height,
-                          "num_color":num_color}
+                         "text_center": text_center, "num_y": num_y, "num_len": num_len,
+                         "num_clear_x": num_clear_x, "num_clear_y": num_clear_y,
+                         "num_clear_width": num_clear_width, "num_clear_height": num_clear_height,
+                         "num_color": num_color}
     return score_pos_setting
 
 
