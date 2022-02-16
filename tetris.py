@@ -190,4 +190,5 @@ class Game:
 
                 if score_ != self.score.score:
                     score_ = self.score.score
-                    graphic.draw_score(score_)
+                    graphic.draw_num(score_, graphic.score_pos_settings)
+                    graphic.draw_num(self.score.rows, graphic.rows_pos_settings)
