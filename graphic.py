@@ -19,6 +19,7 @@ def init_graphic(display_: st7789.ST7789, game_rows_, game_cols_):
     display = display_
     tetromino_width = eval_tetromino_shape(game_rows, display.height())
     prev_map = init_prev_map(game_cols, game_rows)
+    display.fill(st7789.BLACK)
 
 
 def eval_tetromino_shape(map_rows, lcd_height):

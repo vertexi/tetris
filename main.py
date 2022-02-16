@@ -39,11 +39,9 @@ control.buttonB = Pin(5, Pin.IN, Pin.PULL_UP)  # B
 control.buttonA = Pin(6, Pin.IN, Pin.PULL_UP)  # A
 control.buttonStart = Pin(7, Pin.IN, Pin.PULL_UP)
 control.buttonSelect = Pin(8, Pin.IN, Pin.PULL_UP)
-# control.ButtonEvent(control.buttonB, Pin.IRQ_FALLING, 150, game.rotate)
-# control.ButtonEvent(control.buttonA, Pin.IRQ_FALLING, 150, game.drop)
-# control.ButtonEvent(control.buttonStart, Pin.IRQ_FALLING, 150, game.reset)
 game.set_button([control.buttonB, Pin.IRQ_FALLING, 150, game.rotate],
                 [control.buttonA, Pin.IRQ_FALLING, 150, game.drop],
-                [control.buttonStart, Pin.IRQ_FALLING, 150, game.reset])
+                [control.buttonStart, Pin.IRQ_FALLING, 150, game.start_game],
+                [control.buttonSelect, Pin.IRQ_FALLING, 150, game.pause_game])
 
 game.run()

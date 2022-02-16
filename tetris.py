@@ -1,32 +1,27 @@
-import machine
 import graphic
 import utime
 from tetromino import Tetromino, tetrominos
 import control
-from machine import Pin
 
 
 class Game:
-    tetromino: Tetromino
+    game_map: list[list] = None
+    tetromino: Tetromino = None
     joystick: control.Joystick
     button: control.Button
+    game_over: bool
+    pause: bool
 
     def __init__(self, display):
         self.rows = 22
         self.cols = 12
         self.wall_width = 1
         self.bottom_wall_width = 2
-        self.game_map = None
-        self.tetromino = None
+        self.display = display
 
         self.update_map = self.iter_tetromino_area(self.update_map)
         self.collide_detect = self.iter_tetromino_area(self.collide_detect)
         self.get_full_map = self.iter_tetromino_area(self.get_full_map)
-
-        self.game_over = False
-
-        graphic.init_graphic(display, self.rows, self.cols)
-
 
     def iter_tetromino_area(self, action):
 
@@ -83,7 +78,7 @@ class Game:
         if self.collide_detect(self.game_map):
             self.tetromino.pos_x += 1
 
-    def rotate(self, pin=None):
+    def rotate(self):
         pre_orient = self.tetromino.orient
         if pre_orient == self.tetromino.type_variants - 1:
             self.tetromino.orient = -1
@@ -91,7 +86,7 @@ class Game:
         if self.collide_detect(self.game_map):
             self.tetromino.orient = pre_orient
 
-    def drop(self, pin=None):
+    def drop(self):
         while self.move_down():
             self.fresh_lcd()
 
@@ -131,8 +126,9 @@ class Game:
         self.game_map = self.init_map()
         self.add_tetromino()
 
-    def reset(self, pin):
-        machine.soft_reset()
+        self.game_over = False
+        self.pause = False
+        graphic.init_graphic(self.display, self.rows, self.cols)
 
     def fresh_lcd(self):
         full_map = [i.copy() for i in self.game_map]
@@ -146,15 +142,24 @@ class Game:
     def set_button(self, *args):
         self.button = control.Button(*args)
 
-    def run(self):
+    def start_game(self):
         self.init_game()
 
-        counter = 0
-        while not self.game_over:
-            utime.sleep_ms(1)
-            if counter % 100 == 0:
-                counter = 0
-                self.move_down()
-            counter += 1
-            self.joystick.run()
-            self.fresh_lcd()
+    def pause_game(self):
+        print(self.pause)
+        self.pause = not self.pause
+
+    def run(self, pin=None):
+        self.init_game()
+        while True:
+            counter = 0
+            while not self.game_over and not self.pause:
+
+                utime.sleep_ms(1)
+                if counter % 100 == 0:
+                    counter = 0
+                    self.move_down()
+                counter += 1
+
+                self.joystick.run()
+                self.fresh_lcd()
