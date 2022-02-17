@@ -85,7 +85,11 @@ def diff_draw(game_map: list[list]):
 def draw_block(x: int, y: int, color: int):
     x *= tetromino_width
     y *= tetromino_width
-    display.fill_rect(x, y, tetromino_width, tetromino_width, color)
+    border_width = 1
+    display.fill_rect(x, y, tetromino_width, tetromino_width, st7789.BLACK)
+    display.fill_rect(x+border_width, y+border_width,
+                      tetromino_width-2*border_width,
+                      tetromino_width-2*border_width, color)
 
 
 def draw_num(num: int, setting: dict):
