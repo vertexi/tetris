@@ -70,13 +70,13 @@ class Game:
 
     def collide_detect(self, tetromino_array, j, i, tetromino_y,
                        tetromino_x, game_map):
-        if (game_map[j][i]+tetromino_array[tetromino_y][tetromino_x]) > 1:
+        if game_map[j][i] != 0 and tetromino_array[tetromino_y][tetromino_x] != 0:
             return True
 
     def get_full_map(self, tetromino_array, j, i, tetromino_y,
                      tetromino_x, game_map):
-        if tetromino_array[tetromino_y][tetromino_x] == 1:
-            game_map[j][i] = 1
+        if tetromino_array[tetromino_y][tetromino_x] != 0:
+            game_map[j][i] = tetromino_array[tetromino_y][tetromino_x]
 
     def move_down(self):
         self.tetromino.pos_y += 1
@@ -115,7 +115,8 @@ class Game:
         for i in range(self.rows-2):
             line_sum = 0
             for j in range(1, self.cols-1):
-                line_sum += self.game_map[i][j]
+                if self.game_map[i][j] != 0:
+                    line_sum += 1
             if line_sum == self.cols-2:
                 self.remove_line(i)
                 row += 1
@@ -138,11 +139,11 @@ class Game:
             [[0 for col in range(self.cols)] for row in range(self.rows)]
         # draw wall
         for i in range(self.rows):
-            game_map[i][0] = 1
-            game_map[i][-1] = 1
+            game_map[i][0] = 8
+            game_map[i][-1] = 8
         for j in range(self.cols):
-            game_map[-2][j] = 1
-            game_map[-1][j] = 1
+            game_map[-2][j] = 8
+            game_map[-1][j] = 8
         return game_map
 
     def init_game(self):

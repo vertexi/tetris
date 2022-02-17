@@ -13,6 +13,9 @@ display_height: int
 score_pos_settings: dict
 rows_pos_settings: dict
 
+#                   white   red     yellow  brown   green   purple  blue    dark blue black
+tetromino_colors = [0x0000, 0xF182, 0xF788, 0xF400, 0x4788, 0xF21E, 0x479E, 0x001E, 0xFFFF]
+
 
 def init_graphic(display_: st7789.ST7789, game_rows_, game_cols_):
     global display
@@ -65,11 +68,6 @@ def eval_tetromino_shape(map_rows, lcd_height):
     return tetromino_width_
 
 
-def copy_map(game_map: list[list]):
-    new_map = [i.copy() for i in game_map]
-    return new_map
-
-
 def init_prev_map(cols, rows):
     prev_map_ = [[0 for col in range(cols)] for row in range(rows)]
     return prev_map_
@@ -79,15 +77,9 @@ def diff_draw(game_map: list[list]):
     global prev_map
     for i in range(game_rows):
         for j in range(game_cols):
-            diff = prev_map[i][j] - game_map[i][j]
-            if diff == 0:
-                pass
-            else:
+            if prev_map[i][j] != game_map[i][j]:
+                draw_block(j, i, tetromino_colors[game_map[i][j]])
                 prev_map[i][j] = game_map[i][j]
-                if diff == 1:
-                    draw_block(j, i, st7789.BLACK)
-                elif diff == -1:
-                    draw_block(j, i, st7789.WHITE)
 
 
 def draw_block(x: int, y: int, color: int):
