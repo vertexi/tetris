@@ -188,6 +188,7 @@ class Game:
 
                 self.joystick.run()
                 self.fresh_lcd()
+                graphic.draw_img()
 
                 if score_ != self.score.score:
                     score_ = self.score.score
