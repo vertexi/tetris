@@ -1,11 +1,15 @@
 ## Todo
 
-- [ ] pause
+- [x] pause
 - [ ] text message
-- [ ] score
-- [ ] replay
-- [ ] button noise(set don't allow consecutive action)
+- [x] score
+- [x] replay
+- [x] button noise(set don't allow consecutive action)
 - [ ] speed setting
-- [ ] color
-- [ ] music
+- [x] color
+- [x] music
 - [ ] width setting
+- [ ] settings
+- [ ] score change music
+- [ ] central
+- [ ] zen mode
