@@ -1,4 +1,4 @@
-from machine import Pin, ADC
+from machine import Pin, ADC, I2C
 import utime
 from libs import mma7660
 
@@ -36,16 +36,27 @@ def button_select():
     return buttonSelect.value()
 
 
+class DelayEvent:
+    def __init__(self, time_threshold, callback_handle):
+        self.start_time = utime.ticks_ms()
+        self.time_threshold = time_threshold
+        self.callback_handle = callback_handle
+
+    def tick(self):
+        if utime.ticks_diff(utime.ticks_ms(), self.start_time) > self.time_threshold:
+            self.callback_handle()
+            self.start_time = utime.ticks_ms()
+
+
 class JoystickEvent:
     def __init__(self, stick_pos_handle, great_than: bool, pos_threshold: int,
-                 counter_threshold: int, callback_handle):
+                 timer_threshold: int, callback_handle):
         self.counter = 0
         self.stick_pos_handle = stick_pos_handle
         self.stick_pos = self.stick_pos_handle()
         self.pos_threshold = pos_threshold
-        self.counter_threshold = counter_threshold
         self.great_than = great_than
-        self.callback_handle = callback_handle
+        self.delay_event = DelayEvent(timer_threshold, callback_handle)
 
     def event(self):
         self.stick_pos = self.stick_pos_handle()
@@ -57,10 +68,7 @@ class JoystickEvent:
             if self.stick_pos < self.pos_threshold:
                 trigger = True
         if trigger:
-            if self.counter % self.counter_threshold == 0:
-                self.counter = 0
-                self.callback_handle()
-            self.counter += 1
+            self.delay_event.tick()
 
 
 class Joystick:
@@ -78,13 +86,10 @@ class ButtonEvent:
     def __init__(self, pin: Pin, trigger_event, time_threshold, callback_handle):
         self.irq = pin.irq(self.event, trigger_event)
         self.callback_handle = callback_handle
-        self.start_time = utime.ticks_ms()
-        self.time_threshold = time_threshold
+        self.delay_event = DelayEvent(time_threshold, callback_handle)
 
     def event(self, pin):
-        if utime.ticks_diff(utime.ticks_ms(), self.start_time) > self.time_threshold:
-            self.callback_handle()
-            self.start_time = utime.ticks_ms()
+        self.delay_event.tick()
 
 
 class Button:
@@ -92,6 +97,11 @@ class Button:
         self.buttons = []
         for arg in args:
             self.buttons.append(ButtonEvent(*arg))
+
+
+class MMA7660:
+    def __init__(self, i2c:I2C):
+        self.accel = mma7660.Accelerometer(i2c)
 
 
 class Controller:

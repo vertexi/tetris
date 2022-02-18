@@ -58,6 +58,7 @@ class MMA7660_LOOKUP:
         self.xyAngle: int = 0
         self.zAngle: int = 0
 
+
 class Accelerometer:
     accLookup: list[MMA7660_LOOKUP] = [MMA7660_LOOKUP() for i in range(64)]
 
@@ -88,7 +89,7 @@ class Accelerometer:
             val += 0.047
 
         val = -0.047
-        for i in range(63,31,-1):
+        for i in range(63, 31, -1):
             self.accLookup[i].g = val
             val -= 0.047
 
@@ -102,13 +103,13 @@ class Accelerometer:
 
         val = -2.69
         valZ = -87.31
-        for i in range(63, 42,-1):
+        for i in range(63, 42, -1):
             self.accLookup[i].xyAngle = val
             self.accLookup[i].zAngle = valZ
             val -= 2.69
             valZ += 2.69
 
-        for i in range(22,43):
+        for i in range(22, 43):
             self.accLookup[i].xyAngle = 255
             self.accLookup[i].zAngle = 255
 
@@ -120,12 +121,12 @@ class Accelerometer:
 
     def getXYZ(self):
         count = 0
-        val = [64,64,64]
+        val = [64, 64, 64]
         while count < 3:
             while val[count] > 63:
                 val[count] = int.from_bytes(self.read(count, 1), 'little')  # 0x00 0x01 0x03 x y z
             count += 1
-        return  val
+        return val
 
     def getAcceleration(self):
         x, y, z = self.getXYZ()

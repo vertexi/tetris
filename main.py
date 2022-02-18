@@ -29,10 +29,10 @@ controller = control.Controller()
 control.xAxis = ADC(Pin(29))
 control.yAxis = ADC(Pin(28))
 joystick_controller = \
-        control.Joystick([control.x_value, False, 0xFFF, 30, game.move_left],
-                         [control.x_value, True,  0xEFFF, 30, game.move_right],
-                         [control.y_value, False,  0xFFF, 30, game.rotate],
-                         [control.y_value, True,  0xEFFF, 30, game.move_down])
+        control.Joystick([control.x_value, False, 0xFFF, 120, game.move_left],
+                         [control.x_value, True,  0xEFFF, 120, game.move_right],
+                         [control.y_value, False,  0xFFF, 120, game.rotate],
+                         [control.y_value, True,  0xEFFF, 120, game.move_down])
 controller.set_joystick(joystick_controller)
 
 # set button

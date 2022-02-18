@@ -28,9 +28,10 @@ class Game:
     score: Score
     game_over: bool
     pause: bool
+    move_down_event: control.DelayEvent
 
     def __init__(self, display):
-        self.rows = 22
+        self.rows = 24
         self.cols = 12
         self.wall_width = 1
         self.bottom_wall_width = 2
@@ -41,6 +42,8 @@ class Game:
         self.update_map = self.iter_tetromino_area(self.update_map)
         self.collide_detect = self.iter_tetromino_area(self.collide_detect)
         self.get_full_map = self.iter_tetromino_area(self.get_full_map)
+
+        self.move_down_event = control.DelayEvent(self.speed*3, self.move_down)
 
     def iter_tetromino_area(self, action):
 
@@ -174,14 +177,9 @@ class Game:
         while True:
             counter = 0
             while not self.game_over and not self.pause:
-                score_ = self.score.score
-
                 utime.sleep_ms(1)
-                if counter % self.speed == 0:
-                    counter = 0
-                    self.move_down()
-                counter += 1
-
+                score_ = self.score.score
+                self.move_down_event.tick()
                 self.controller.run()
                 self.fresh_lcd()
                 graphic.draw_img()
