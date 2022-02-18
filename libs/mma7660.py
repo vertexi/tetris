@@ -1,5 +1,4 @@
 from machine import I2C
-from machine import Pin
 from micropython import const
 
 
@@ -62,10 +61,9 @@ class MMA7660_LOOKUP:
 class Accelerometer:
     accLookup: list[MMA7660_LOOKUP] = [MMA7660_LOOKUP() for i in range(64)]
 
-    def __init__(self, scl: Pin, sda: Pin, interrupts=False):
+    def __init__(self, i2c: I2C, interrupts=False):
 
-        self.i2c = I2C(0, scl=scl, sda=sda, freq=400000)
-        self.i2c.init()
+        self.i2c = i2c
 
         self.initAccelTable()
         self.setMode(MMA7660_STAND_BY)
@@ -126,24 +124,34 @@ class Accelerometer:
         val = [64,64,64]
         while count < 3:
             while val[count] > 63:
-                val[count] = self.read(count, 1)  # 0x00 0x01 0x03 x y z
+                val[count] = int.from_bytes(self.read(count, 1), 'little')  # 0x00 0x01 0x03 x y z
             count += 1
         return  val
-    #
-    #
-    #
-    #
-    #
-    #     return data = (x,y,z)
-    #
-    # def getAcceleration(self):
-    #     return True
-    #     return False
-    #
-    # def getAllData(self):
-    #     count = 0
-    #
-    #
-    #
-    #     return True
-    #     return False
+
+    def getAcceleration(self):
+        x, y, z = self.getXYZ()
+        return self.accLookup[x].g, self.accLookup[y].g, self.accLookup[z].g
+
+    def getAngle(self):
+        x, y, z = self.getXYZ()
+        return self.accLookup[x].xyAngle, self.accLookup[y].xyAngle, self.accLookup[z].zAngle
+
+    def getAllData(self):
+        data = MMA7660_DATA()
+        count = 0
+        val = []
+        while count < 11:
+            val.append(self.read(count, 1))  # 0x00 0x01 0x03 x y z
+            count += 1
+        data.X = val[0]
+        data.Y = val[1]
+        data.Z = val[2]
+        data.TILT = val[3]
+        data.SRST = val[4]
+        data.SPCNT = val[5]
+        data.INTSU = val[6]
+        data.MODE = val[7]
+        data.SR = val[8]
+        data.PDET = val[9]
+        data.PD = val[10]
+        return data
