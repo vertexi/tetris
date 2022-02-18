@@ -67,12 +67,18 @@ class Accelerometer:
 
         self.initAccelTable()
         self.setMode(MMA7660_STAND_BY)
-        self.setSampleRate(AUTO_SLEEP_32)
+        self.setSampleRate(AUTO_SLEEP_120)
 
         if interrupts:
             self.write(MMA7660_INTSU, interrupts)
 
-        self.setMode(MMA7660_ACTIVE)
+        self.setMode(MMA7660_ACTIVE | MMA7660_AUTO_SLEEP_ENABLE)
+        self.get_x = self.get_val_decorator(self.get_x)
+        self.get_y = self.get_val_decorator(self.get_y)
+        self.get_z = self.get_val_decorator(self.get_z)
+
+        for i in range(5):
+            self.getXYZ()
 
     def write(self, register: int, data):
         data = bytearray([data])
@@ -128,9 +134,39 @@ class Accelerometer:
             count += 1
         return val
 
+    def get_val_decorator(self, func):
+        def get_val():
+            val = 64
+            while val > 63:
+                val = func()
+            return val
+
+        return get_val
+
+    def get_x(self):
+        return int.from_bytes(self.read(MMA7660_X, 1), 'little')
+
+    def get_y(self):
+        return int.from_bytes(self.read(MMA7660_Y, 1), 'little')
+
+    def get_z(self):
+        return int.from_bytes(self.read(MMA7660_Z, 1), 'little')
+
     def getAcceleration(self):
         x, y, z = self.getXYZ()
         return self.accLookup[x].g, self.accLookup[y].g, self.accLookup[z].g
+
+    def getAcceleration_x(self):
+        x = self.get_x()
+        return self.accLookup[x].g
+
+    def getAcceleration_y(self):
+        y = self.get_y()
+        return self.accLookup[y].g
+
+    def getAcceleration_z(self):
+        z = self.get_z()
+        return self.accLookup[z].g
 
     def getAngle(self):
         x, y, z = self.getXYZ()

@@ -1,6 +1,6 @@
 import gc
 import machine
-from machine import Pin, ADC
+from machine import Pin, ADC, I2C
 from libs import lcd
 from tetris import Game
 import control
@@ -46,6 +46,16 @@ button_controller = \
                    [control.buttonStart, Pin.IRQ_FALLING, 150, game.start_game],
                    [control.buttonSelect, Pin.IRQ_FALLING, 150, game.pause_game])
 controller.set_button(button_controller)
+
+# set accelerometer
+i2c = I2C(1, scl=Pin(11), sda=Pin(10), freq=400000)
+accelerometer = control.Accelerometer(i2c)
+accelerometer.set_events([accelerometer.accel.getAcceleration_y, (-2, -0.5), 120, game.move_left],
+                         [accelerometer.accel.getAcceleration_y, (0.5, 2), 120, game.move_right],
+                         [accelerometer.accel.getAcceleration_x, (-2, -0.5), 120, game.move_down],
+                         [accelerometer.accel.getAcceleration_x, (0.5, 2), 120, game.rotate])
+controller.set_accelerometer(accelerometer)
+
 game.set_controller(controller)
 
 game.run()
