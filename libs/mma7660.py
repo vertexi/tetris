@@ -62,7 +62,6 @@ class Accelerometer:
     accLookup: list[MMA7660_LOOKUP] = [MMA7660_LOOKUP() for i in range(64)]
 
     def __init__(self, i2c: I2C, interrupts=False):
-
         self.i2c = i2c
 
         self.initAccelTable()

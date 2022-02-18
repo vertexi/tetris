@@ -24,8 +24,7 @@ class Score:
 class Game:
     game_map: list[list] = None
     tetromino: Tetromino = None
-    joystick: control.Joystick
-    button: control.Button
+    controller: control.Controller
     score: Score
     game_over: bool
     pause: bool
@@ -161,11 +160,8 @@ class Game:
         graphic.diff_draw(full_map)
         del full_map
 
-    def set_joystick(self, joystick):
-        self.joystick = joystick
-
-    def set_button(self, *args):
-        self.button = control.Button(*args)
+    def set_controller(self, controller):
+        self.controller = controller
 
     def start_game(self):
         self.init_game()
@@ -186,7 +182,7 @@ class Game:
                     self.move_down()
                 counter += 1
 
-                self.joystick.run()
+                self.controller.run()
                 self.fresh_lcd()
                 graphic.draw_img()
 

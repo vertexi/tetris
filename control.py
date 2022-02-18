@@ -1,5 +1,6 @@
 from machine import Pin, ADC
 import utime
+from libs import mma7660
 
 
 xAxis: ADC
@@ -91,3 +92,19 @@ class Button:
         self.buttons = []
         for arg in args:
             self.buttons.append(ButtonEvent(*arg))
+
+
+class Controller:
+    joystick: Joystick
+    button: Button
+    def __init__(self):
+        pass
+
+    def set_button(self, button: Button):
+        self.button = button
+
+    def set_joystick(self, joystick):
+        self.joystick = joystick
+
+    def run(self):
+        self.joystick.run()

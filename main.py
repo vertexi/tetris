@@ -24,6 +24,7 @@ display = lcd.lcd_config(spi_lcd, width=lcd_width, height=lcd_height,
 
 game = Game(display)
 
+controller = control.Controller()
 # set joystick
 control.xAxis = ADC(Pin(29))
 control.yAxis = ADC(Pin(28))
@@ -32,16 +33,19 @@ joystick_controller = \
                          [control.x_value, True,  0xEFFF, 30, game.move_right],
                          [control.y_value, False,  0xFFF, 30, game.rotate],
                          [control.y_value, True,  0xEFFF, 30, game.move_down])
-game.set_joystick(joystick_controller)
+controller.set_joystick(joystick_controller)
 
 # set button
 control.buttonB = Pin(5, Pin.IN, Pin.PULL_UP)  # B
 control.buttonA = Pin(6, Pin.IN, Pin.PULL_UP)  # A
 control.buttonStart = Pin(7, Pin.IN, Pin.PULL_UP)
 control.buttonSelect = Pin(8, Pin.IN, Pin.PULL_UP)
-game.set_button([control.buttonB, Pin.IRQ_FALLING, 150, game.rotate],
-                [control.buttonA, Pin.IRQ_FALLING, 150, game.drop],
-                [control.buttonStart, Pin.IRQ_FALLING, 150, game.start_game],
-                [control.buttonSelect, Pin.IRQ_FALLING, 150, game.pause_game])
+button_controller = \
+    control.Button([control.buttonB, Pin.IRQ_FALLING, 150, game.rotate],
+                   [control.buttonA, Pin.IRQ_FALLING, 150, game.drop],
+                   [control.buttonStart, Pin.IRQ_FALLING, 150, game.start_game],
+                   [control.buttonSelect, Pin.IRQ_FALLING, 150, game.pause_game])
+controller.set_button(button_controller)
+game.set_controller(controller)
 
 game.run()
