@@ -2,6 +2,7 @@ import graphic
 import utime
 from tetromino import Tetromino, tetrominos
 import control
+from music import MusicEvent
 
 
 class Score:
@@ -29,6 +30,7 @@ class Game:
     game_over: bool
     pause: bool
     move_down_event: control.DelayEvent
+    theme_music: MusicEvent
 
     def __init__(self, display):
         self.rows = 24
@@ -166,11 +168,15 @@ class Game:
     def set_controller(self, controller):
         self.controller = controller
 
+    def set_theme_music(self, music):
+        self.theme_music = music
+
     def start_game(self):
         self.init_game()
 
     def pause_game(self):
         self.pause = not self.pause
+        self.theme_music.toggle()
 
     def run(self):
         self.init_game()
@@ -180,6 +186,7 @@ class Game:
                 utime.sleep_ms(1)
                 score_ = self.score.score
                 self.move_down_event.tick()
+                self.theme_music.tick()
                 self.controller.run()
                 self.fresh_lcd()
                 graphic.draw_img()

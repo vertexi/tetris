@@ -4,6 +4,7 @@ from machine import Pin, ADC, I2C
 from libs import lcd
 from tetris import Game
 import control
+import music
 
 
 # initialize
@@ -56,6 +57,10 @@ accelerometer.set_events([accelerometer.accel.getAcceleration_y, (-2, -0.5), 120
                          [accelerometer.accel.getAcceleration_x, (0.5, 2), 120, game.rotate])
 controller.set_accelerometer(accelerometer)
 
+# set game controller
 game.set_controller(controller)
+
+# set theme music
+game.set_theme_music(music.theme_music_event)
 
 game.run()
