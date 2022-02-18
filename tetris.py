@@ -194,3 +194,4 @@ class Game:
                     score_ = self.score.score
                     graphic.draw_num(score_, graphic.score_pos_settings)
                     graphic.draw_num(self.score.rows, graphic.rows_pos_settings)
+                    graphic.draw_img(celebrate=True)

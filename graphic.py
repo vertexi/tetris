@@ -32,7 +32,10 @@ def cycle(p):
         yield from p
 
 
-images = cycle(["img/pikachu-pokemon{}.jpg".format(i) for i in range(14)])
+images_normal = cycle([["img/pikachu-pokemon{}.jpg".format(i), i] for i in range(14)])
+images_normal = [images_normal, 14]
+images_celebrate = cycle([["img/pikachu-love{}.jpg".format(i), i] for i in range(17)])
+images_celebrate = [images_celebrate, 17]
 image_pos_x: int = 0
 image_pos_y: int = 0
 image_size: int = 100
@@ -131,11 +134,26 @@ def draw_num(num: int, setting: dict):
 
 last_draw_img_time = utime.ticks_ms()
 draw_interval_time = 100
+current_draw_img = images_normal
 
 
-def draw_img():
-    global last_draw_img_time
+def draw_img(celebrate=False):
+    global last_draw_img_time, current_draw_img
+    if celebrate:
+        current_draw_img = images_celebrate
+        image_name = next(current_draw_img[0])
+        while image_name[1] != current_draw_img[1]-1:
+            image_name = next(current_draw_img[0])
+        display.fill_rect(image_pos_x, image_pos_y, image_size, image_size,
+                          st7789.BLACK)
+        display.jpg(image_name[0], image_pos_x, image_pos_y, st7789.SLOW)
+        last_draw_img_time = utime.ticks_ms()
     if utime.ticks_diff(utime.ticks_ms(), last_draw_img_time) > draw_interval_time:
-        image_name = next(images)
-        display.jpg(image_name, image_pos_x, image_pos_y, st7789.SLOW)
+        image_name = next(current_draw_img[0])
+        if image_name[1] == current_draw_img[1]-1:
+            current_draw_img = images_normal
+            display.fill_rect(image_pos_x, image_pos_y, image_size, image_size, st7789.BLACK)
+            image_name = next(current_draw_img[0])
+            display.jpg(image_name[0], image_pos_x, image_pos_y, st7789.SLOW)
+        display.jpg(image_name[0], image_pos_x, image_pos_y, st7789.SLOW)
         last_draw_img_time = utime.ticks_ms()
