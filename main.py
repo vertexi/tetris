@@ -54,13 +54,13 @@ accelerometer = control.Accelerometer(i2c)
 accelerometer.set_events([accelerometer.accel.getAcceleration_y, (-2, -0.5), 120, game.move_left],
                          [accelerometer.accel.getAcceleration_y, (0.5, 2), 120, game.move_right],
                          [accelerometer.accel.getAcceleration_x, (-2, -0.5), 120, game.move_down],
-                         [accelerometer.accel.getAcceleration_x, (0.5, 2), 120, game.rotate])
+                         [accelerometer.accel.getAcceleration_x, (0.5, 2), 250, game.rotate])
 controller.set_accelerometer(accelerometer)
 
 # set game controller
 game.set_controller(controller)
 
 # set theme music
-game.set_theme_music(music.theme_music_event)
+game.set_musics(music.musics)
 
 game.run()

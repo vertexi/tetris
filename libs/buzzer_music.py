@@ -195,16 +195,21 @@ class Music:
         self.stopped = True
 
     def start(self):
+        self.beat = -1
+        self.timer = 0
         self.pwms = []
         for pin in self.pins:
             self.pwms.append(PWM(pin))
         self.stopped = False
 
-    def toggle(self):
-        if self.stopped:
-            self.start()
-        else:
-            self.stop()
+    def continue_music(self):
+        if (self.timer % (self.tempo * self.end) == 0 and (not (self.timer == 0))):
+            self.beat = -1
+            self.timer = 0
+        self.pwms = []
+        for pin in self.pins:
+            self.pwms.append(PWM(pin))
+        self.stopped = False
 
     def tick(self):
         if (not self.stopped):

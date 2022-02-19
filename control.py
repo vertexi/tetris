@@ -44,8 +44,10 @@ class DelayEvent:
 
     def tick(self):
         if utime.ticks_diff(utime.ticks_ms(), self.start_time) > self.time_threshold:
-            self.callback_handle()
+            res = self.callback_handle()
             self.start_time = utime.ticks_ms()
+            return res
+        return True
 
 
 class JoystickEvent:

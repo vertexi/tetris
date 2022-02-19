@@ -2,7 +2,7 @@ import graphic
 import utime
 from tetromino import Tetromino, tetrominos
 import control
-from music import MusicEvent
+from music import Musics
 
 
 class Score:
@@ -30,7 +30,7 @@ class Game:
     game_over: bool
     pause: bool
     move_down_event: control.DelayEvent
-    theme_music: MusicEvent
+    musics: Musics
 
     def __init__(self, display):
         self.rows = 24
@@ -125,6 +125,8 @@ class Game:
                 self.remove_line(i)
                 row += 1
         self.score.add_score(self.level, row)
+        if row > 0:
+            self.celebrate()
 
     def remove_line(self, row_num: int):
         for i in range(row_num, 0, -1):
@@ -132,6 +134,12 @@ class Game:
                 self.game_map[i][j] = self.game_map[i-1][j]
         for j in range(1, self.cols - 1):
             self.game_map[0][j] = 0
+
+    def celebrate(self):
+        graphic.draw_num(self.score.score, graphic.score_pos_settings)
+        graphic.draw_num(self.score.rows, graphic.rows_pos_settings)
+        graphic.draw_img(celebrate=True)
+        self.musics.tick(True)
 
     def add_tetromino(self):
         self.tetromino = Tetromino(self.cols)
@@ -168,31 +176,27 @@ class Game:
     def set_controller(self, controller):
         self.controller = controller
 
-    def set_theme_music(self, music):
-        self.theme_music = music
+    def set_musics(self, musics: Musics):
+        self.musics = musics
 
     def start_game(self):
         self.init_game()
+        self.musics.continue_music()
 
     def pause_game(self):
         self.pause = not self.pause
-        self.theme_music.toggle()
+        if self.pause:
+            self.musics.pause()
+        else:
+            self.musics.continue_music()
 
     def run(self):
         self.init_game()
         while True:
-            counter = 0
             while not self.game_over and not self.pause:
                 utime.sleep_ms(1)
-                score_ = self.score.score
                 self.move_down_event.tick()
-                self.theme_music.tick()
+                self.musics.tick()
                 self.controller.run()
                 self.fresh_lcd()
                 graphic.draw_img()
-
-                if score_ != self.score.score:
-                    score_ = self.score.score
-                    graphic.draw_num(score_, graphic.score_pos_settings)
-                    graphic.draw_num(self.score.rows, graphic.rows_pos_settings)
-                    graphic.draw_img(celebrate=True)
