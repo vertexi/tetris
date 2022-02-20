@@ -55,11 +55,6 @@ class MusicEvent(DelayEvent):
         self.music.continue_music()
 
 
-# One buzzer on pin 23
-theme_music = Music(theme_music, looping=True, tempo=3, duty=256, pins=[Pin(23)])
-celebrate_music = Music(celebrate_music, looping=False, tempo=3, duty=256, pins=[Pin(23)])
-
-
 class Musics:
     def __init__(self, *args):
         self.musics = []
@@ -88,5 +83,14 @@ class Musics:
         self.pause_ = False
 
 
-musics = Musics([40, theme_music.tick, theme_music],
-                [40, celebrate_music.tick, celebrate_music])
+musics: Musics = None
+
+
+def set_up_musics(pin):
+    global musics
+    theme_music_ = Music(theme_music, looping=True, tempo=3, duty=256,
+                        pins=[Pin(pin)])
+    celebrate_music_ = Music(celebrate_music, looping=False, tempo=3, duty=256,
+                            pins=[Pin(pin)])
+    musics = Musics([40, theme_music_.tick, theme_music_],
+                    [40, celebrate_music_.tick, celebrate_music_])

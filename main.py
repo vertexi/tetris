@@ -62,10 +62,15 @@ controller.set_accelerometer(accelerometer)
 # set game controller
 game.set_controller(controller)
 
-# set theme music
+# setup music
+# One buzzer on pin 23
+music.set_up_musics(23)
 game.set_musics(music.musics)
 
 # set led
-ws2812.init_led(256, 0.1)
+sck = 14
+mosi = 15
+miso = 12
+ws2812.init_led(sck, mosi, miso, 256, 0.1)
 
 game.run()

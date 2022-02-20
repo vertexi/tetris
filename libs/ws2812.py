@@ -201,10 +201,10 @@ WHITE = (255, 255, 255)
 
 
 # Configure the number of WS2812 LEDs.
-def init_led(led_num, brightness_):
+def init_led(sck, mosi, miso, led_num, brightness_):
     global neo, brightness
     sp = SPI(1, baudrate=3200000, phase=1, polarity=1,
-             sck=Pin(14), mosi=Pin(15), miso=Pin(12))
+             sck=Pin(sck), mosi=Pin(mosi), miso=Pin(miso))
     brightness = brightness_
     neo = NeoPixel(sp, led_num)
 
