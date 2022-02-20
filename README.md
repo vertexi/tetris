@@ -28,7 +28,7 @@ game play demo: https://youtu.be/0AJZ8k9wzJs
 
 ![FpOIcLOTHF0c3wosPhoOf3FB3Wkg](Media/FpOIcLOTHF0c3wosPhoOf3FB3Wkg.jpeg)
 
-![img](https://qn.eetree.cn/FnJF8vI6wkI0S9gPp2nyhZM0iBFK)
+![FnJF8vI6wkI0S9gPp2nyhZM0iBFK-16453476415222](Media/FnJF8vI6wkI0S9gPp2nyhZM0iBFK-16453476415222.png)
 
 Every pin setup are written in main.py
 
