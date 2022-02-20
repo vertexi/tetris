@@ -181,14 +181,14 @@ class Game:
 
     def start_game(self):
         self.init_game()
-        self.musics.continue_music()
+        self.musics.resume()
 
     def pause_game(self):
         self.pause = not self.pause
         if self.pause:
             self.musics.pause()
         else:
-            self.musics.continue_music()
+            self.musics.resume()
 
     def run(self):
         self.init_game()

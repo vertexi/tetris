@@ -45,14 +45,14 @@ class MusicEvent(DelayEvent):
         super(MusicEvent, self).__init__(time_threshold, callback_handle)
         self.music = music
 
-    def start(self):
-        self.music.start()
+    def restart(self):
+        self.music.restart()
 
     def stop(self):
         self.music.stop()
 
-    def continue_music(self):
-        self.music.continue_music()
+    def resume(self):
+        self.music.resume()
 
 
 class Musics:
@@ -66,7 +66,7 @@ class Musics:
     def tick(self, celebrate=False):
         if celebrate:
             self.current_music = self.musics[1]
-            self.current_music.start()
+            self.current_music.restart()
             self.current_music.tick()
         if not self.pause_:
             if not self.current_music.tick():
@@ -77,9 +77,9 @@ class Musics:
             music.stop()
         self.pause_ = True
 
-    def continue_music(self):
+    def resume(self):
         for music in self.musics:
-            music.continue_music()
+            music.resume()
         self.pause_ = False
 
 
