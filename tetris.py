@@ -33,8 +33,8 @@ class Game:
     musics: Musics
 
     def __init__(self, display):
-        self.rows = 24
-        self.cols = 12
+        self.rows = 30
+        self.cols = 10
         self.wall_width = 1
         self.bottom_wall_width = 2
         self.display = display
@@ -193,6 +193,8 @@ class Game:
     def run(self):
         self.init_game()
         while True:
+            if self.game_over:
+                self.musics.pause()
             while not self.game_over and not self.pause:
                 utime.sleep_ms(1)
                 self.move_down_event.tick()

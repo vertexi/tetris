@@ -3,6 +3,7 @@ import st7789
 import italiccs
 import scriptc
 import utime
+from libs import ws2812
 
 tetromino_width = 0
 prev_map: list[list]
@@ -15,8 +16,11 @@ display_width: int
 score_pos_settings: dict
 rows_pos_settings: dict
 
-#                   white   red     yellow  brown   green   purple  blue    dark blue black
+#                   black   red     yellow  brown   green   purple  blue    dark blue white
 tetromino_colors = [0x0000, 0xF182, 0xF788, 0xF400, 0x4788, 0xF21E, 0x479E, 0x001E, 0xFFFF]
+tetromino_colors_led = [ws2812.BLACK, ws2812.RED, ws2812.YELLOW, ws2812.PURPLE,
+                        ws2812.GREEN, ws2812.PURPLE, ws2812.BLUE, ws2812.CYAN,
+                        ws2812.WHITE]
 
 
 def cycle(p):
@@ -57,6 +61,7 @@ def init_graphic(display_: st7789.ST7789, game_rows_, game_cols_):
     tetromino_width = eval_tetromino_shape(game_rows, display_height)
     prev_map = init_prev_map(game_cols, game_rows)
     display.fill(st7789.BLACK)
+    ws2812.neo[:] = (0, 0, 0)
 
     score_pos_settings = draw_score_setting("Score", 5/8, 1/8, 0xe7e0, 5, 0xece0)
     display.draw(italiccs, "Score", score_pos_settings["text_x"],
@@ -113,6 +118,9 @@ def diff_draw(game_map: list[list]):
                 draw_block(j, i, tetromino_colors[game_map[i][j]])
                 prev_map[i][j] = game_map[i][j]
 
+                if 0 < j < 9:
+                    ws2812.neo_set_pixel(j-1, i, tetromino_colors_led[game_map[i][j]])
+    ws2812.neo.write()
 
 def draw_block(x: int, y: int, color: int):
     x *= tetromino_width

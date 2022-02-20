@@ -5,6 +5,8 @@ from libs import lcd
 from tetris import Game
 import control
 import music
+from libs import ws2812
+import uos
 
 
 # initialize
@@ -62,5 +64,8 @@ game.set_controller(controller)
 
 # set theme music
 game.set_musics(music.musics)
+
+# set led
+ws2812.init_led(256, 0.1)
 
 game.run()
